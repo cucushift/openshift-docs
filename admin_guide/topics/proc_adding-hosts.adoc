@@ -1,0 +1,159 @@
+////
+Adding hosts
+
+Module included in the following assemblies:
+
+* install_config/adding_hosts_to_existing_cluster.adoc
+* admin_guide/assembly_replace-master-host.adoc
+* admin_guide/manage_nodes.adoc
+////
+
+[id='adding-hosts_{context}']
+= Adding hosts
+
+You can add new hosts to your cluster by running the *_scaleup.yml_* playbook.
+This playbook queries the master, generates and distributes new certificates for
+the new hosts, then runs the configuration playbooks on the new hosts only.
+Before running the *_scaleup.yml_* playbook, complete all prerequisite
+xref:../install_config/install/host_preparation.adoc#install-config-install-host-preparation[host
+preparation] steps.
+
+[IMPORTANT]
+====
+The scaleup playbook only configures the new host. It does not update *_NO_PROXY_* in master services and it does not restart master services.
+====
+
+You must have an existing inventory file (for example, *_/etc/ansible/hosts_*)
+that is representative of your current cluster configuration in order to run the
+*_scaleup.yml_* playbook.
+ifdef::openshift-enterprise[]
+If you previously used the `atomic-openshift-installer` command to run your
+installation, you can check *_~/.config/openshift/hosts_* (previously located at
+*_~/.config/openshift/.ansible/hosts_*) for the last inventory file that the
+installer generated, and use or modify that as needed as your inventory file.
+You must then specify the file location with `-i` when calling
+`ansible-playbook` later.
+endif::[]
+
+[IMPORTANT]
+====
+See the
+xref:../scaling_performance/cluster_limits.adoc#scaling-performance-cluster-limits[cluster
+limits] section for recommended maximum number of nodes.
+====
+
+[discrete]
+== Procedure
+
+. Ensure you have the latest playbooks by updating the *atomic-openshift-utils*
+package:
++
+----
+# yum update atomic-openshift-utils
+----
+
+. Edit your *_/etc/ansible/hosts_* file and add *new_<host_type>* to the
+*[OSEv3:children]* section:
++
+For example, to add a new node host, add *new_nodes*:
++
+----
+[OSEv3:children]
+masters
+nodes
+new_nodes
+----
++
+To add new master hosts, add *new_masters*.
+
+. Create a *[new_<host_type>]* section much like an existing section,
+specifying host information for any new hosts you want to add. For example,
+when adding a new node:
++
+----
+[nodes]
+master[1:3].example.com
+node1.example.com openshift_node_labels="{'region': 'primary', 'zone': 'east'}"
+node2.example.com openshift_node_labels="{'region': 'primary', 'zone': 'west'}"
+infra-node1.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+infra-node2.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+
+[new_nodes]
+node3.example.com openshift_node_labels="{'region': 'primary', 'zone': 'west'}"
+----
++
+See
+xref:../install_config/install/advanced_install.adoc#advanced-host-variables[Configuring
+Host Variables] for more options.
++
+When adding new masters, hosts added to the *[new_masters]* section must also be
+added to the *[new_nodes]* section. This ensures the new master host is part of
+the OpenShift SDN.
++
+----
+[masters]
+master[1:2].example.com
+
+[new_masters]
+master3.example.com
+
+[nodes]
+master[1:2].example.com
+node1.example.com openshift_node_labels="{'region': 'primary', 'zone': 'east'}"
+node2.example.com openshift_node_labels="{'region': 'primary', 'zone': 'west'}"
+infra-node1.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+infra-node2.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+
+[new_nodes]
+master3.example.com
+----
++
+Masters are also automatically marked as unschedulable for pod placement by the
+installer.
++
+[IMPORTANT]
+====
+If you label a master host with the `region=infra` label and have no other
+dedicated infrastructure nodes, you must also explicitly mark the host as
+schedulable by adding `openshift_schedulable=true` to the entry. Otherwise, the
+registry and router pods cannot be placed anywhere.
+====
+
+. Run the *_scaleup.yml_* playbook. If your inventory file is located somewhere
+other than the default of *_/etc/ansible/hosts_*, specify the location with the
+`-i option`.
++
+For additional nodes:
++
+----
+# ansible-playbook [-i /path/to/file] \
+    /usr/share/ansible/openshift-ansible/playbooks/openshift-node/scaleup.yml
+----
++
+For additional masters:
++
+----
+# ansible-playbook [-i /path/to/file] \
+    /usr/share/ansible/openshift-ansible/playbooks/openshift-master/scaleup.yml
+----
+
+. After the playbook completes successfully,
+xref:../install_config/install/advanced_install.adoc#advanced-verifying-the-installation[verify the installation].
+
+. Finally, move any hosts you had defined in the *[new_<host_type>]* section
+into their appropriate section (but leave the *[new_<host_type>]* section
+definition itself in place) so that subsequent runs using this inventory file
+are aware of the nodes but do not handle them as new nodes. For example, when
+adding new nodes:
++
+----
+[nodes]
+master[1:3].example.com
+node1.example.com openshift_node_labels="{'region': 'primary', 'zone': 'east'}"
+node2.example.com openshift_node_labels="{'region': 'primary', 'zone': 'west'}"
+node3.example.com openshift_node_labels="{'region': 'primary', 'zone': 'west'}"
+infra-node1.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+infra-node2.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+
+[new_nodes]
+----

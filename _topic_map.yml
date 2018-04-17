@@ -543,6 +543,10 @@ Topics:
 - Name: Managing Nodes
   File: manage_nodes
   Distros: openshift-origin,openshift-enterprise
+- Name: Restoring your cluster
+  File: assembly_restoring-cluster
+- Name: Replacing a master host
+  File: assembly_replace-master-host
 - Name: Managing Users
   File: manage_users
   Distros: openshift-origin,openshift-enterprise,atomic-*
@@ -650,8 +654,8 @@ Topics:
 - Name: Building Dependency Trees
   File: building_dependency_trees
   Distros: openshift-origin,openshift-enterprise
-- Name: Backup and Restore
-  File: backup_restore
+- Name: Replacing a failed etcd member  
+  File: assembly_replace-etcd-member.adoc
 - Name: Restoring etcd quorum
   File: assembly_restore-etcd-quorum
 - Name: Troubleshooting Networking

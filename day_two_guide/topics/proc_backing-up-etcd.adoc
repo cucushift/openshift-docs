@@ -8,8 +8,13 @@ Module included in the following assemblies:
 * admin_guide/assembly_restore-etcd-quorum.adoc
 ////
 
-[id='etcd-configuration-backup_{context}']
-= etcd configuration backup
+[id='backing-up-etcd_{context}']
+= Backing up etcd
+
+When you back up etcd, you must back up both the etcd configuration files and
+the etcd data.
+
+== Backing up etcd configuration files
 
 The etcd configuration files to be preserved are all stored in the `/etc/etcd`
 directory of the instances where etcd is running. This includes the etcd
@@ -31,7 +36,7 @@ The certificates and configuration files on each etcd cluster member are unique.
 ====
 
 [id='etcd-data-backup_{context}']
-= etcd data backup
+== Backing up etcd data
 
 [discrete]
 === Prerequisites
@@ -105,7 +110,7 @@ https://master-2.example.com:2379 is healthy: successfully committed proposal: t
 ----
 endif::[]
 
-ifeval::["{context}" == "host-level-tasks"]
+ifeval::["{context}" == "day-two-host-level-tasks"]
 . To ensure the etcd cluster is working, check its health.
 ** If you use the etcd v2 API, run the following command:
 +

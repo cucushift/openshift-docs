@@ -8,6 +8,7 @@
 :toc: macro
 :toc-title:
 :prewrap!:
+:context: environment-backup
 
 toc::[]
 
@@ -16,32 +17,59 @@ with restoration in the case of crashing instances, or corrupt data. After
 backups have been created, they can be restored onto a newly installed version
 of the relevant component.
 
+In {product-title}, you can _back up_, saving state to separate storage, at the 
+cluster level.
+The full state of an environment backup includes:
+
+- Cluster data files
+- etcd data on each master
+- API objects
+- Registry storage
+- Volume storage
+
 Perform a back up on a regular basis to prevent data loss.
 
-[[day-two-environment-master-backup]]
-== Creating a master host backup
+[IMPORTANT]
+====
+The following process describes a generic way of backing up applications and the
+{product-title} cluster. It cannot take into account custom requirements.
+Use these steps as a foundation for a full backup and restoration procedure 
+for your cluster. You must take all necessary precautions to prevent data loss.
 
-include::day_two_guide/topics/master_backup.adoc[leveloffset=+2]
+Backup and restore is not guaranteed. You are responsible for backing up your own
+data.
+====
 
-[[day-two-environment-node-backup]]
-== Creating a node host backup
+include::day_two_guide/topics/proc_backing-up-master.adoc[]
 
-include::day_two_guide/topics/node_backup.adoc[leveloffset=+2]
+include::day_two_guide/topics/proc_backing-up-node.adoc[]
 
-[[day-two-environment-etcd-backup]]
-== etcd backup
+include::day_two_guide/topics/proc_backing-up-registry-certs.adoc[]
 
-include::day_two_guide/topics/con_etcd_backup.adoc[leveloffset=+2]
+include::day_two_guide/topics/proc_backing-up-other-files.adoc[]
 
-:context: environment-backup
-include::day_two_guide/topics/proc_etcd_backup.adoc[leveloffset=+2]
+include::day_two_guide/topics/proc_backing-up-application-data.adoc[]
 
-[[day-two-environment-project-backup]]
-== Creating a project backup
+include::day_two_guide/topics/con_etcd_backup.adoc[]
 
-include::day_two_guide/topics/project_backup.adoc[leveloffset=+2]
+include::day_two_guide/topics/proc_backing-up-etcd.adoc[leveloffset=1]
 
-[[day-two-environment-pvc-backup]]
-== Creating a PVC backup
+include::day_two_guide/topics/proc_backing-up-project.adoc[]
 
-include::day_two_guide/topics/pvc_backup_and_restore.adoc[leveloffset=+2]
+include::day_two_guide/topics/proc_backing-up-pvc.adoc[]
+
+[[environment-backup-restore-pvc]]
+= Restoring Persistent Volume Claims
+
+This topic describes two methods for restoring data. The first involves deleting
+the file, then placing the file back in the expected location. The second
+example shows migrating persistent volume claims. The migration would occur in
+the event that the storage needs to be moved or in a disaster scenario when the
+backend storage no longer exists.
+
+Check with the restore procedures for the specific application on any steps
+required to restore data to the application.
+
+include::day_two_guide/topics/proc_restoring-files-to-pvc.adoc[leveloffset=+1]
+
+include::day_two_guide/topics/proc_restoring-data-new-pvc.adoc[leveloffset=+1]

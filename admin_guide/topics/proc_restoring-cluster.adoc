@@ -1,0 +1,16 @@
+////
+restoring a cluster
+
+Module included in the following assemblies:
+
+* admin_guide/assembly_restoring-cluster.adoc
+////
+
+[id='cluster-restore-single-member-etcd-clusters_{context}']
+= Restoring a cluster
+
+. Reinstall {product-title} in the
+xref:../install_config/install/planning.adoc#installation-methods[same way] that
+you originally installed {product-title}.
+
+. Run all of your custom post-installation steps.

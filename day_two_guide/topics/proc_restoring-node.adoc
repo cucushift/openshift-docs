@@ -4,7 +4,11 @@ Restoring a node host
 Module included in the following assemblies:
 
 * day_two_guide/host_level_tasks.adoc
+* admin_guide/assembly_restoring-cluster.adoc
 ////
+
+[id='restoring-node_{context}']
+= Restoring a node host backup
 
 After creating a backup of important node host files, if they become corrupted
 or accidentally removed, you can restore the file by copying back the file,
@@ -71,4 +75,3 @@ $ sudo update-ca-trust
 Always ensure proper user ID and group ID are restored when the files are copied
 back, as well as the `SELinux` context.
 ====
-

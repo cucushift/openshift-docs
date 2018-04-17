@@ -11,15 +11,27 @@
 
 toc::[]
 
-[[day-two-guide-project-backup]]
-== Project backup
+include::day_two_guide/topics/proc_backing-up-project.adoc[leveloffset=+1]
 
-include::day_two_guide/topics/project_backup.adoc[leveloffset=+2]
+include::day_two_guide/topics/proc_restoring-project.adoc[leveloffset=+1]
 
-[[day-two-guide-pvc-backup-restore]]
-== PVC backup
+include::day_two_guide/topics/proc_backing-up-pvc.adoc[leveloffset=+1]
 
-include::day_two_guide/topics/pvc_backup_and_restore.adoc[leveloffset=+2]
+[[project-level-tasks-restoring-PVC]]
+= Restoring Persistent Volume Claims
+
+This topic describes two methods for restoring data. The first involves deleting
+the file, then placing the file back in the expected location. The second
+example shows migrating persistent volume claims. The migration would occur in
+the event that the storage needs to be moved or in a disaster scenario when the
+backend storage no longer exists.
+
+Check with the restore procedures for the specific application on any steps
+required to restore data to the application.
+
+include::day_two_guide/topics/proc_restoring-files-to-pvc.adoc[leveloffset=+1]
+
+include::day_two_guide/topics/proc_restoring-data-new-pvc.adoc[leveloffset=+1]
 
 [[day-two-guide-pruning-images]]
 == Pruning images and containers

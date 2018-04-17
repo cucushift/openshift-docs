@@ -1,0 +1,29 @@
+[[assembly_replace-etcd-member]]
+= Replacing a failed etcd member
+{product-author}
+{product-version}
+:data-uri:
+:icons: font
+:experimental:
+:toc: macro
+:toc-title:
+:prewrap!:
+:context: replace-etcd-member
+
+toc::[]
+
+
+In cases where etcd members have failed and you still have a quorum of etcd
+cluster members running, you can use the surviving members to
+add additional etcd members without downtime.
+
+include::admin_guide/topics/proc_removing-failed-etcd-node.adoc[leveloffset=+1]
+
+[[adding_an_etcd_node]]
+== Adding an etcd member
+
+Add a new etcd member. You can either add an etcd host by using an Ansible 
+playbook or by manual steps.
+
+include::day_two_guide/topics/proc_scaling-etcd-ansible.adoc[leveloffset=+2]
+include::day_two_guide/topics/proc_scaling-etcd-manual.adoc[leveloffset=+2]

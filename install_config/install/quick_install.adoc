@@ -316,7 +316,7 @@ method and therefore do not have an installation configuration file, you can
 either try xref:defining-an-installation-configuration-file[creating your own]
 based on your cluster's current configuration, or see the advanced installation
 method on how to
-xref:../../install_config/adding_hosts_to_existing_cluster.adoc#adding-nodes-advanced[run
+xref:../../install_config/adding_hosts_to_existing_cluster.adoc#adding-hosts_adding-hosts-to-cluster[run
 the playbook for adding new nodes directly].
 
 [IMPORTANT]

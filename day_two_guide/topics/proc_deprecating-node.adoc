@@ -6,6 +6,10 @@ Module included in the following assemblies:
 * day_two_guide/host_level_tasks.adoc
 ////
 
+
+[id='deprecating-node_{context}']
+= Deprecating a node host
+
 The procedure is the same whether deprecating an infrastructure node or an
 application node.
 

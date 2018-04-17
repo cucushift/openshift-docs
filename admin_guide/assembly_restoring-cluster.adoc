@@ -1,0 +1,50 @@
+[[admin-guide-restore]]
+= Restoring your cluster
+{product-author}
+{product-version}
+:data-uri:
+:icons:
+:experimental:
+:toc: macro
+:toc-title:
+:prewrap!:
+:context: admin-restore-cluster
+
+toc::[]
+
+== Overview
+
+In {product-title}, you can _restore_, recreating state from separate storage,
+at the cluster level.
+
+To restore a cluster, you must first xref:../day_two_guide/environment_backup.adoc[back it up].
+
+[IMPORTANT]
+====
+The following process describes a generic way of restoring applications and the
+{product-title} cluster. It cannot take into account custom requirements. You 
+might need to take additional actions to restore your cluster.
+====
+
+include::admin_guide/topics/proc_restoring-cluster.adoc[]
+
+include::day_two_guide/topics/proc_restoring-master.adoc[]
+
+include::day_two_guide/topics/proc_restoring-node.adoc[]
+
+include::day_two_guide/topics/proc_restoring-etcd.adoc[]
+
+[[replacing-the-failed-node]]
+== Adding an etcd node
+
+After you restore etcd, you can add more etcd nodes to the cluster. You can 
+either add an etcd host by using an Ansible playbook or by manual steps.
+
+include::day_two_guide/topics/proc_scaling-etcd-ansible.adoc[leveloffset=+2]
+include::day_two_guide/topics/proc_scaling-etcd-manual.adoc[leveloffset=+2]
+
+include::day_two_guide/topics/proc_bringing-openshift-online.adoc[]
+
+include::day_two_guide/topics/proc_restoring-project.adoc[]
+
+include::day_two_guide/topics/proc_restoring-application-data.adoc[]

@@ -4,8 +4,12 @@ Removing an etcd host
 Module included in the following assemblies:
 
 * day_two_guide/host_level_tasks.adoc
+* day_two_guide/assembly_replacing-etcd-host.adoc
 * admin_guide/assembly_restore-etcd-quorum.adoc
 ////
+
+[id='removing-etcd-host_{context}']
+= Removing an etcd host
 
 If an etcd host fails beyond restoration, remove it from the cluster.
 ifeval::["{context}" == "restore-etcd-quorum"]
@@ -13,7 +17,7 @@ To recover from an etcd quorum loss, you must also remove all healthy etcd
 nodes but one from your cluster.
 endif::[]
 
-ifeval::["{context}" == "day_two_host_level_tasks"]
+ifeval::["{context}" == "day-two-host-level-tasks"]
 [IMPORTANT]
 ====
 Ensure the etcd cluster maintains quorum while removing the etcd host by
@@ -36,7 +40,7 @@ for each etcd node:
   --key-file=/etc/etcd/peer.key member remove <failed member ID>
 ----
 
-ifeval::["{context}" == "day_two_host_level_tasks"]
+ifeval::["{context}" == "day-two-host-level-tasks"]
 . Edit the failed etcd host out of the `/etc/origin/master/master-config.yaml`
 master configuration file on every master:
 +
@@ -162,29 +166,3 @@ FLANNEL_ETCD_ENDPOINTS=https://master-0.example.com:2379,https://master-1.exampl
 ----
 # systemctl restart flanneld.service
 ----
-
-ifeval::["{context}" == "day_two_host_level_tasks"]
-== Replacing an etcd host
-
-Before you remove the etcd host, scale up the etcd cluster with the new host
-using the scale up Ansible playbook or
-xref:../day_two_guide/host_level_tasks.adoc#scaling-etcd[the manual procedure in
-Scaling etcd]. This ensures that you keep quorum if you lose an etcd host during
-the replacement procedure. Then, you can xref:../day_two_guide/host_level_tasks.adoc#removing-an-etcd-host[remove the etcd host from the cluster].
-
-[WARNING]
-====
-The etcd cluster must maintain a quorum during the replacement operation. This
-means that at least one host must be in operation at all times.
-
-If the host replacement operation occurs while the etcd cluster maintains a
-quorum, cluster operations are not affected, except if there is a large etcd
-data to replicate where some operations can be slowed down.
-====
-
-[NOTE]
-====
-Ensure a backup of etcd data and configuration files exists before any procedure
-involving the etcd cluster to ensure restoration in the case of failure.
-====
-endif::[] 
