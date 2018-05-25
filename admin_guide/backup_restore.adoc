@@ -92,96 +92,7 @@ might also be affected, for example when using multiple authentication providers
 # docker pull rhel7/etcd
 ----
 
-Note the location of the *etcd* data directory (or `$ETCD_DATA_DIR` in the
-following sections), which depends on how *etcd* is deployed.
 
-[options="header",cols="1,2"]
-|===
-| Deployment Type| Data Directory
-
-|all-in-one cluster
-|*_/var/lib/origin/openshift.local.etcd_*
-
-|external etcd (located either on a master or another host)
-|*_/var/lib/etcd_*
-
-|===
-
-[WARNING]
-====
-Embedded etcd is no longer supported starting with {product-title} 3.7.
-====
-
-
-[[cluster-backup]]
-== Cluster Backup
-
-[[master-backup]]
-=== Master Backup
-
-. Save all the certificates and keys, on each master:
-+
-----
-# cd /etc/origin/master
-# tar cf /tmp/certs-and-keys-$(hostname).tar *.key *.crt
-----
-
-[[etcd-backup]]
-=== Etcd Backup
-
-. If *etcd* is running on more than one host, stop it on each host:
-+
-----
-# sudo systemctl stop etcd
-----
-+
-Although this step is not strictly necessary, doing so ensures that the *etcd*
-data is fully synchronized.
-
-. Create an *etcd* backup:
-+
-----
-# etcdctl backup \
-    --data-dir $ETCD_DATA_DIR \
-    --backup-dir $ETCD_DATA_DIR.bak
-----
-+
-[NOTE]
-====
-If *etcd* is running on more than one host,
-the various instances regularly synchronize their data,
-so creating a backup for one of them is sufficient.
-====
-+
-[NOTE]
-====
-For a container-based installation, you must use `docker exec` to run *etcdctl*
-inside the container.
-====
-
-. Copy the *_db_* file over to the backup you created:
-+
-----
-# cp "$ETCD_DATA_DIR"/member/snap/db "$ETCD_DATA_DIR.bak"/member/snap/db
-----
-
-[[registry-certificates-backup]]
-=== Registry Certificates Backup
-
-. Save all the registry certificates, on every master and node host.
-+
-----
-# cd /etc/docker/certs.d/
-# tar cf /tmp/docker-registry-certs-$(hostname).tar *
-----
-+
-[NOTE]
-====
-When working with one or more
-xref:../install_config/registry/securing_and_exposing_registry.adoc#exposing-the-registry[external
-secured registry], any host required to pull or push images must trust registry
-certificates in order to run pods.
-====
 
 [[cluster-restore-single-member-etcd-clusters]]
 == Cluster Restore for Single-member etcd Clusters
@@ -773,91 +684,7 @@ and enable and restart the *atomic-openshift-node* service:
 
 Your {product-title} cluster should now be back online.
 endif::openshift-enterprise,openshift-origin[]
-[[project-backup]]
-== Project Backup
 
-A future release of {product-title} will feature specific support for
-per-project back up and restore.
-
-For now, to back up API objects at the project level, use `oc export` for each
-object to be saved. For example, to save the deployment configuration `frontend`
-in YAML format:
-
-----
-$ oc export dc frontend -o yaml > dc-frontend.yaml
-----
-
-To back up all of the project (with the exception of cluster objects like
-namespaces and projects):
-
-----
-$ oc export all -o yaml > project.yaml
-----
-
-[[backup-rolebindings]]
-=== Role Bindings
-
-Sometimes custom policy
-xref:../admin_guide/manage_rbac.adoc#managing-role-bindings[role
-bindings] are used in a project. For example, a project administrator can give
-another user a certain role in the project and grant that user project access.
-
-These role bindings can be exported:
-
-----
-$ oc get rolebindings -o yaml --export=true > rolebindings.yaml
-----
-
-[[backup-serviceaccounts]]
-=== Service Accounts
-
-If custom service accounts are created in a project, these need to be exported:
-
-----
-$ oc get serviceaccount -o yaml --export=true > serviceaccount.yaml
-----
-
-[[backup-secrets]]
-=== Secrets
-
-Custom secrets like source control management secrets (SSH Public Keys,
-Username/Password) should be exported if they are used:
-
-----
-$ oc get secret -o yaml --export=true > secret.yaml
-----
-
-[[backup-pvc]]
-=== Persistent Volume Claims
-
-If the application within a project uses a persistent volume through a
-persistent volume claim (PVC), these should be backed up:
-
-----
-$ oc get pvc -o yaml --export=true > pvc.yaml
-----
-
-
-[[project-restore]]
-== Project Restore
-
-To restore a project, recreate the project and recreate all of the objects
-that were exported during the backup:
-
-----
-$ oc new-project myproject
-$ oc create -f project.yaml
-$ oc create -f secret.yaml
-$ oc create -f serviceaccount.yaml
-$ oc create -f pvc.yaml
-$ oc create -f rolebindings.yaml
-----
-
-[NOTE]
-====
-Some resources can fail to be created (for example, pods and default service
-accounts).
-====
 
 [[backup-application-data]]
 == Application Data Backup
@@ -952,3 +779,38 @@ Alternatively, you can scale down the deployment to 0, and then up again:
 $ oc scale --replicas=0 dc/jenkins
 $ oc scale --replicas=1 dc/jenkins
 ----
+
+
+
+containerized ETCD_DIR
+
+When you run the `etcd backup` command:
+[NOTE]
+====
+For a container-based installation, you must use `docker exec` to run *etcdctl*
+inside the container.
+====
+
+
+
+
+
+Registry certificates
+
+[[registry-certificates-backup]]
+=== Registry Certificates Backu
+
+. Save all the registry certificates, on every master and node host.
++
+----
+# cd /etc/docker/certs.d/
+# tar cf /tmp/docker-registry-certs-$(hostname).tar *
+----
++
+[NOTE]
+====
+When working with one or more
+xref:../install_config/registry/securing_and_exposing_registry.adoc#exposing-the-registry[external
+secured registry], any host required to pull or push images must trust registry
+certificates in order to run pods.
+====

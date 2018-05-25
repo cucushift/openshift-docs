@@ -158,6 +158,16 @@ join the cluster. The metadata is rewritten to prevent the new node from
 inadvertently being joined onto an existing cluster.
 ====
 
+. If you use the v2 api and  *etcd* is running on more than one host, stop it 
+on each host:
++
+----
+# sudo systemctl stop etcd
+----
++
+Although this step is not strictly necessary, doing so ensures that the *etcd*
+data is fully synchronized.
+
 . Perform the backup:
 +
 ----

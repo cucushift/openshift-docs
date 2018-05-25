@@ -14,7 +14,12 @@ toc::[]
 [[day-two-guide-project-backup]]
 == Project backup
 
-include::day_two_guide/topics/project_backup.adoc[]
+include::day_two_guide/topics/proc_backup-project.adoc[]
+
+[[day-two-guide-project-restore]]
+== Project restore
+
+include::day_two_guide/topics/proc_restoring-project.adoc[]
 
 [[day-two-guide-pvc-backup-restore]]
 == PVC backup

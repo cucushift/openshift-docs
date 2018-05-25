@@ -32,6 +32,11 @@ Because the masters are also unschedulable nodes, back up the entire
 [discrete]
 == Procedure
 
+[IMPORTANT]
+====
+You must perform the following steps on each master node.
+====
+
 . Create a backup of the master host configuration files:
 +
 ----
@@ -59,7 +64,7 @@ deprecating the first master host, copy the `/etc/origin/master/ca.serial.txt`
 file to the rest of master hosts before the process.
 ====
 
-. Other important files that need to be considered  when planning a backup
+. Other important files that need to be considered when planning a backup
 include:
 +
 |===
@@ -213,4 +218,3 @@ $ git clone https://github.com/openshift/openshift-ansible-contrib.git
 $ cd openshift-ansible-contrib/reference-architecture/day2ops/scripts
 $ ./backup_master_node.sh -h
 ----
-

@@ -37,7 +37,7 @@ include::day_two_guide/topics/etcd_backup.adoc[]
 [[day-two-environment-project-backup]]
 == Creating a project backup
 
-include::day_two_guide/topics/project_backup.adoc[]
+include::day_two_guide/topics/proc_backup-project.adoc[]
 
 [[day-two-environment-pvc-backup]]
 == Creating a PVC backup
