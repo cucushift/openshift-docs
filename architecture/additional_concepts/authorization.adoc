@@ -430,14 +430,12 @@ ifdef::openshift-enterprise,openshift-origin[]
 
 After any xref:../../upgrading/index.adoc#install-config-upgrading-index[{product-title} cluster
 upgrade], the default roles are updated and automatically reconciled when the
-server is started. Additionally, see
-xref:../../upgrading/manual_upgrades.adoc#updating-policy-definitions[Updating
-Policy Definitions] for instructions on getting other recommendations
-using:
+server is started. 
 
-----
-$ oc adm policy reconcile-cluster-roles
-----
+If you customize the default roles, you must
+xref:../../upgrading/manual_upgrades.adoc#updating-policy-definitions[manually
+update
+policy definitions] when you upgrade {product-title}.
 
 [[applying-custom-roles-and-permissions]]
 
