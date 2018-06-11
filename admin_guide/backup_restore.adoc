@@ -707,15 +707,18 @@ Copy the three environment variables in the etcdctl member add output. They will
 * ETCD_INITIAL_CLUSTER
 * ETCD_INITIAL_CLUSTER_STATE
 +
-Replace the IP address with the "NEW_ETCD" value for:
+.. Replace the IP address with the "NEW_ETCD" value for:
 +
 * ETCD_LISTEN_PEER_URLS
 * ETCD_LISTEN_CLIENT_URLS
 * ETCD_INITIAL_ADVERTISE_PEER_URLS
 * ETCD_ADVERTISE_CLIENT_URLS
 +
-For replacing failed members, you will need to remove the failed hosts from the
-etcd configuration.
+.. For replacing failed members, replace the failed hosts with the new hosts.
+
+. On the node that hosts the installation files, update the `[etcd]` hosts group
+ in the *_/etc/ansible/hosts_* inventory file. Remove the old etcd hosts and
+ add the new ones.
 
 . Start etcd on the new host:
 +
