@@ -42,6 +42,10 @@ should be running both the service catalog and the OpenShift Ansible broker
 xref:../cli_tooling.adoc#apb-devel-cli[CLI Tooling] topic. To verify, you can
 run the `apb help` command and check for a valid response.
 
+. If you are developing against an {product-title} cluster that exists on a remote
+host or you do not have access to the *docker* daemon, see
+xref:../../apb_devel/writing/reference.adoc#apb-devel-writing-ref-remote-clusters[Working with Remote Clusters] for alternative steps when using the `apb push` and `apb run` commands described in this guide.
+
 [[apb-devel-writing-gs-creating]]
 == Creating Your First APB
 
@@ -212,7 +216,7 @@ $ oc new-project getting-started
 ////
 
 [[apb-devel-writing-gs-provision]]
-==== Provision
+=== Provision
 
 During the `apb init` process, two parts of the provision task were stubbed out. The playbook, *_playbooks/provision.yml_*, and the associated role in *_roles/provision-my-test-apb_*:
 
@@ -319,7 +323,7 @@ localhost                  : ok=0    changed=0    unreachable=0    failed=0
 ----
 
 [[apb-devel-writing-gs-provision-dc]]
-===== Creating a Deploying Configuration
+==== Creating a Deploying Configuration
 
 At the minimum, your APB should deploy the application pods. You can do this by
 specifying a
@@ -422,7 +426,7 @@ To clean up before moving on and allow you to provision again, you can delete th
 ====
 
 [[apb-devel-writing-gs-provision-svc]]
-===== Creating a Service
+==== Creating a Service
 
 You will want to use multiple pods, load balance them, and create a
 xref:../../architecture/core_concepts/pods_and_services.adoc#services[service]
@@ -492,7 +496,7 @@ To clean up before moving on and allow you to provision again, you can delete th
 ====
 
 [[apb-devel-writing-gs-provision-route]]
-===== Creating a Route
+==== Creating a Route
 
 You can expose external access to your application through a reliable named
 xref:../../architecture/networking/routes.adoc#architecture-core-concepts-routes[route]:
@@ -551,7 +555,7 @@ link:https://github.com/ansibleplaybookbundle/hello-world-apb[*hello-world-apb*]
 example repository.
 
 [[apb-devel-writing-gs-deprovision]]
-==== Deprovision
+=== Deprovision
 
 For the deprovision task, you must destroy all provisioned resources, usually in
 reverse order from how they were created.
@@ -767,7 +771,7 @@ xref:../../architecture/additional_concepts/storage.adoc#persistent-volume-claim
 volume (PV)] to save data between restarts and various configuration options for
 the deployment configuration.
 +
-In addition, a new task has been added at the the very bottom after the
+In addition, a new task has been added at the very bottom after the
 provision tasks. To save the credentials created during the provision process,
 you must encode them for retrieval by the OAB. The new task, using the module
 `asb_encode_binding`, will do so for you.

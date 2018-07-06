@@ -43,12 +43,10 @@ make this easier, the configuration files can be created with the
 
 [[master-node-config-prereq]]
 == Installation dependencies
-For testing environments deployed via the
-xref:../install_config/install/quick_install.adoc#install-config-install-quick-install[quick install] tool, one master should be sufficient. The quick installation method should not be used for production environments.
 
-Production environments should be installed using the
-xref:../install_config/install/advanced_install.adoc#install-config-install-advanced-install[advanced install]. In production environments, it is a good idea to use
-xref:../install_config/install/advanced_install.adoc#multiple-masters[multiple masters] for the purposes of
+Production environments should be installed using the standard xref:../install/index.adoc#install-planning[cluster installation]
+process. In production environments, it is a good idea to use
+xref:../install/example_inventories.adoc#multiple-masters[multiple masters] for the purposes of
 xref:../admin_guide/high_availability.adoc#admin-guide-high-availability[high availability] (HA).
 A cluster architecture of three masters is recommended, and
 xref:../architecture/infrastructure_components/kubernetes_infrastructure.adoc#master[HAproxy] is the recommended solution for this.
@@ -66,16 +64,17 @@ install etcd on hosts other than the masters.
 
 The method you use to configure your master and node configuration files must
 match the method that was used to install your {product-title} cluster. If you
-followed the:
+followed the standard xref:../install/index.adoc#install-planning[cluster
+installation] processe, then make your configuration changes in the Ansible
+inventory file.
 
-- xref:../install_config/install/advanced_install.adoc#install-config-install-advanced-install[Advanced installation]
-method using Ansible, then make your configuration changes in the Ansible playbook.
-- xref:../install_config/install/quick_install.adoc#install-config-install-quick-install[Quick installation]
 ifdef::openshift-origin[]
-or link:https://docs.openshift.org/latest/getting_started/administrators.html[Manual installation]
+If you followed the
+link:https://docs.openshift.org/latest/getting_started/administrators.html[Manual installation] method, then make your changes
+xref:../install_config/master_node_configuration.adoc#master-node-config-manual[manually
+in the configuration files] themselves.
 endif::openshift-origin[]
-method, then make your changes
-xref:../install_config/master_node_configuration.adoc#master-node-config-manual[manually in the configuration files] themselves.
+
 
 [[master-node-config-ansible]]
 == Making configuration changes using Ansible
@@ -87,7 +86,7 @@ https://github.com/openshift/openshift-ansible/blob/master/inventory/hosts.examp
 After an {product-title} install, Ansible creates an
 inventory file with some substituted values. Modifying this inventory file and re-running the Ansible installer playbook is how you customize your {product-title} cluster.
 
-While {product-title} supports using Ansible as the advanced install method, using an Ansible playbook and inventory file, you can also use other management tools, such as
+While {product-title} supports using Ansible for cluster installation, using an Ansible playbook and inventory file, you can also use other management tools, such as
 https://puppet.com/[Puppet], https://www.chef.io/[Chef],
 http://saltstack.com/[Salt]).
 
@@ -97,7 +96,7 @@ http://saltstack.com/[Salt]).
 [NOTE]
 ====
 * This use case assumes you have already set up
-xref:../install_config/install/host_preparation.adoc#ensuring-host-access[SSH keys] to all the nodes referenced in the playbook.
+xref:../install/host_preparation.adoc#ensuring-host-access[SSH keys] to all the nodes referenced in the playbook.
 
 * The `htpasswd` utility is in the `httpd-tools` package:
 +
@@ -257,10 +256,6 @@ For more information on the `htpasswd` command, see xref:../install_config/confi
 
 [[master-node-config-manual]]
 == Making manual configuration changes
-
-After installing {product-title} using the
-xref:../install_config/install/quick_install.adoc#install-config-install-quick-install[quick install] tool,
-you can make modifications to the master and node configuration files to customize your cluster.
 
 *Use Case: Configure the cluster to use HTPasswd authentication*
 
@@ -434,7 +429,7 @@ web console. If not specified, the built-in logout page is shown.
 |The public endpoint for metrics (optional).
 
 |`*PublicURL*`
-|URL of the the asset server.
+|URL of the asset server.
 
 |===
 
@@ -1081,13 +1076,10 @@ If -1, there is no limit on requests.
 |`*DynamicProvisioningEnabled*`
 |A boolean to enable or disable dynamic provisioning. Default is *true*.
 
-|FSGroup
-|Can be specified to enable a quota on local storage use per unique FSGroup ID.
+|*FSGroup*
+|Enables xref:node-config-volume-config[local storage quotas] on each node for each FSGroup.
 At present this is only implemented for emptyDir volumes, and if the underlying
 `*volumeDirectory*` is on an XFS filesystem.
-
-|`*LocalQuota*`
-|Contains options for controlling local volume quota on the node.
 
 |`*MasterVolumeConfig*`
 |Contains options for configuring volume plug-ins in the master node.
@@ -1126,7 +1118,7 @@ Each audit log contains two entries:
 .. The URI as requested
 
 . The response line containing:
-.. The the unique ID from #1
+.. The unique ID from #1
 .. The response code
 
 Example output for user *admin* asking for a list of pods:
@@ -1326,7 +1318,7 @@ authConfig:
   authorizationCacheSize: 1000
   authorizationCacheTTL: 5m
 dnsDomain: cluster.local
-dnsIP: 10.0.2.15 <1>
+dnsIP: 0.0.0.0 <1>
 dockerConfig:
   execHandlerName: native
 imageConfig:
@@ -1346,9 +1338,6 @@ podManifestConfig: <2>
 proxyArguments:
   proxy-mode:
   - iptables <5>
-volumeConfig:
-  localQuota:
-   perFSGroup: null<6>
 servingInfo:
   bindAddress: 0.0.0.0:10250
   bindNetwork: tcp4
@@ -1370,11 +1359,6 @@ manifest files. This is used by the Kubelet to create pods on the node.
 data. The interval must be a positive value.
 <5> The xref:../architecture/core_concepts/pods_and_services.adoc#service-proxy-mode[service
 proxy implementation] to use.
-<6> Preliminary support for local emptyDir volume quotas, set this value to a resource
-quantity representing the desired quota per FSGroup, per node. (i.e. 1Gi, 512Mi, etc)
-Currently requires that the *_volumeDirectory_* be on an XFS filesystem mounted
-with the 'gquota' option, and the matching security context contraint's fsGroup
-type set to 'MustRunAs'.
 ====
 
 The node configuration file determines the resources of a node. See the
@@ -1433,6 +1417,37 @@ start on a machine that does not have docker started.
 |The handler to use for executing commands in Docker containers.
 
 |===
+
+[[node-config-volume-config]]
+=== Local Storage Configuration
+
+You can use the link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/storage_administration_guide/ch-xfs[XFS quota subsystem] 
+to limit the size of `emptyDir` volumes and volumes based on an `emptyDir` volume, such as secrets and configuration maps, on each node.
+
+To limit the size of `emptyDir` volumes in an XFS filesystem, configure local volume quota for each unique 
+xref:../install_config/persistent_storage/pod_security_context.adoc#fsgroup[FSGroup] using the *_node-config-compute_* configuration map in the *openshift-node* project.
+
+----
+apiVersion: kubelet.config.openshift.io/v1
+kind: VolumeConfig
+  localQuota: <1>
+    perFSGroup: 1Gi <2>
+----
+
+<1> Contains options for controlling local volume quota on the node.
+<2> Set this value to a resource quantity representing the desired quota per 
+[FSGroup], per node, such as `1Gi`, `512Mi`, and so forth. 
+Requires the *volumeDirectory* to be on an XFS filesystem mounted with the `grpquota` option. The matching security context constraint *fsGroup* type must be 
+xref:../architecture/additional_concepts/authorization.adoc#authorization-FSGroup[set to `MustRunAs`].
+
+If no FSGroup is specified, indicating the request matched an SCC with `RunAsAny`, the quota
+application is skipped.
+
+[NOTE]
+====
+Do not edit the *_/etc/origin/node/volume-config.yaml_* file directly. The file is created from the *_node-config-compute_* configuration map. 
+Use the *_node-config-compute_* configuration map to create or edit the paramaters in the *_volume-config.yaml_* file.
+====
 
 [[master-node-configuration-parallel-image-pulls-with-docker]]
 === Parallel Image Pulls with Docker 1.9+
@@ -1652,7 +1667,9 @@ After the restart, all new log messages will conform to the new setting. Older m
 
 [NOTE]
 ====
-The default log level can be set using the Advanced Install. For more information, see xref:../install_config/install/advanced_install.adoc#cluster-variables-table[Cluster Variables].
+The default log level can be set using the standard cluster installation
+process. For more information, see
+xref:../install/configuring_inventory_file.adoc#cluster-variables-table[Cluster Variables].
 ====
 
 The following examples are excerpts from a master *journald* log at various log levels. Timestamps and system information have been removed from these examples.

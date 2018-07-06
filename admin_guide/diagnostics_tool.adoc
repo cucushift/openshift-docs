@@ -60,7 +60,7 @@ The options mostly require working configuration files. For example, the
 Diagnostics look for configuration files in standard locations:
 
 * Client:
-** As indicated by the `$KUBECONFIG` environment variable variable
+** As indicated by the `$KUBECONFIG` environment variable
 **  *_~/.kube/config file_*
 * Master:
 ** *_/etc/origin/master/master-config.yaml_*
@@ -187,18 +187,18 @@ for the client configuration in its standard location and uses it if available.
 
 // tag::ansible-based-health-checks-intro[]
 Additional diagnostic health checks are available through the
-xref:../install_config/install/advanced_install.adoc#install-config-install-advanced-install[Ansible-based tooling] used to install and manage {product-title} clusters. They can report
+xref:../install/index.adoc#install-config-install-planning[Ansible-based tooling] used to install and manage {product-title} clusters. They can report
 common deployment problems for the current {product-title} installation.
 
 These checks can be run either using the `ansible-playbook` command (the same
 method used during
-xref:../install_config/install/advanced_install.adoc#install-config-install-advanced-install[Advanced Installation]) or as a link:https://github.com/openshift/openshift-ansible/blob/master/README_CONTAINER_IMAGE.md[containerized version] of *openshift-ansible*. For the `ansible-playbook` method, the checks
+xref:../install/running_install.adoc#install-running-installation-playbooks[cluster installations]) or as a link:https://github.com/openshift/openshift-ansible/blob/master/README_CONTAINER_IMAGE.md[containerized version] of *openshift-ansible*. For the `ansible-playbook` method, the checks
 are provided by the
 ifdef::openshift-enterprise[]
 *atomic-openshift-utils* RPM package.
 endif::[]
 ifdef::openshift-origin[]
-xref:../install_config/install/host_preparation.adoc#preparing-for-advanced-installations-origin[*openshift-ansible*]
+xref:../install/host_preparation.adoc#preparing-for-advanced-installations-origin[*openshift-ansible*]
 Git repository.
 endif::[]
 For the containerized method,
@@ -304,7 +304,7 @@ if a newly-created log entry is not able to be queried via Elasticsearch after
 ====
 A similar set of checks meant to run as part of the installation process can be
 found in
-xref:../install_config/install/advanced_install.adoc#configuring-cluster-pre-install-checks[Configuring Cluster Pre-install Checks]. Another set of checks for checking certificate
+xref:../install/configuring_inventory_file.adoc#configuring-cluster-pre-install-checks[Configuring Cluster Pre-install Checks]. Another set of checks for checking certificate
 expiration can be found in
 xref:../install_config/redeploying_certificates.adoc#install-config-redeploying-certificates[Redeploying Certificates].
 ====
@@ -393,10 +393,10 @@ when running the container as a non-root user.
 <3> Change *_/etc/ansible/hosts_* to the location of your cluster's inventory file,
 if different. This file will be bind-mounted to *_/tmp/inventory_*, which is
 used according to the `INVENTORY_FILE` environment variable in the container.
-<3> The `PLAYBOOK_FILE` environment variable is set to the location of the
+<4> The `PLAYBOOK_FILE` environment variable is set to the location of the
 *_health.yml_* playbook relative to *_/usr/share/ansible/openshift-ansible_*
 inside the container.
-<4> Set any variables desired for a single run with the `-e key=value` format.
+<5> Set any variables desired for a single run with the `-e key=value` format.
 
 In the above command, the SSH key is mounted with the `:Z` flag so that the
 container can read the SSH key from its restricted SELinux context; this means

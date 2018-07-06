@@ -20,12 +20,12 @@ xref:../architecture/additional_concepts/authorization.adoc#architecture-additio
 and bindings].
 
 ifdef::openshift-dedicated[]
-Dedicated administrators can view but not manage cluster roles.  They can manage cluster role bindings
+Dedicated administrators can view but not manage cluster roles. They can manage cluster role bindings
 and manage local roles and bindings.
 endif::[]
 
 [[viewing-roles-and-bindings]]
-== Viewing Roles and Bindings
+== Viewing roles and bindings
 
 xref:../architecture/additional_concepts/authorization.adoc#roles[Roles] can be used to grant
 various levels of access both
@@ -34,12 +34,12 @@ as well as at the
 xref:../architecture/additional_concepts/authorization.adoc#cluster-and-local-rbac[project-scope].
 xref:../architecture/additional_concepts/authentication.adoc#users-and-groups[Users
 and groups] can be associated with, or _bound_ to, multiple roles at the same
-time.  You can view details about the roles and their bindings using the `oc
+time. You can view details about the roles and their bindings using the `oc
 describe` command.
 
 ifdef::openshift-dedicated[]
-Users with the *dedicated-cluster-admin* role can view but not manage cluster roles.  They can manage cluster
-role bindings and manage local roles and bindings.  Users with the *admin*
+Users with the *dedicated-cluster-admin* role can view but not manage cluster roles. They can manage cluster
+role bindings and manage local roles and bindings. Users with the *admin*
 xref:../architecture/additional_concepts/authorization.adoc#roles[default cluster role]
 bound locally can manage roles and bindings in that project.
 endif::[]
@@ -60,7 +60,7 @@ Authorization] section.
 ====
 
 [[viewing-cluster-roles]]
-=== Viewing Cluster Roles
+=== Viewing cluster roles
 ifdef::openshift-enterprise,openshift-origin[]
 To view the cluster roles and their associated rule sets:
 
@@ -68,7 +68,7 @@ To view the cluster roles and their associated rule sets:
 $ oc describe clusterrole.rbac
 ----
 
-.Viewing Cluster Roles
+.Viewing cluster roles
 [options="nowrap"]
 ----
 $ oc describe clusterrole.rbac
@@ -287,7 +287,7 @@ $ oc describe clusterrolebinding.rbac
 
 ifdef::openshift-enterprise,openshift-origin[]
 [[viewing-cluster-bindings]]
-.Viewing Cluster Role Bindings
+.Viewing cluster role bindings
 [options="nowrap"]
 ----
 $ oc describe clusterrolebinding.rbac
@@ -498,7 +498,7 @@ Annotations:	rbac.authorization.kubernetes.io/autoupdate=true
 endif::[]
 
 [[viewing-local-roles-and-bindings]]
-=== Viewing Local Roles and Bindings
+=== Viewing local roles and bindings
 
 All of the
 xref:../architecture/additional_concepts/authorization.adoc#roles[default
@@ -521,7 +521,7 @@ xref:../architecture/additional_concepts/authorization.adoc#roles[default
 cluster role] in it.
 
 [[viewing-local-bindings]]
-.Viewing Local Role Bindings
+.Viewing local role bindings
 [options="nowrap"]
 ----
 $ oc describe rolebinding.rbac -n joe-project
@@ -574,7 +574,7 @@ Subjects:
 ----
 
 [[managing-role-bindings]]
-== Managing Role Bindings
+== Managing role bindings
 
 Adding, or _binding_, a
 xref:../architecture/additional_concepts/authorization.adoc#roles[role] to
@@ -587,7 +587,7 @@ When managing a user or group's associated roles for local role bindings using t
 following operations, a project may be specified with the `-n` flag. If it is
 not specified, then the current project is used.
 
-.Local Role Binding Operations
+.Local role binding operations
 [options="header"]
 |===
 
@@ -622,7 +622,7 @@ You can also manage cluster role bindings using the following
 operations. The `-n` flag is not used for these operations because
 cluster role bindings uses non-namespaced resources.
 
-.Cluster Role Binding Operations
+.Cluster role binding operations
 [options="header"]
 |===
 
@@ -710,7 +710,7 @@ Subjects:
 
 ifdef::openshift-enterprise,openshift-origin[]
 [[creating-local-role]]
-== Creating a Local Role
+== Creating a local role
 
 To create a local role for a project, run the following command:
 
@@ -762,8 +762,158 @@ To bind the new role to a user, run:
 $ oc adm policy add-role-to-user podview user2 --role-namespace=bob-project -n bob-project
 ----
 
+[[creating-derivative-cluster-role]]
+== Creating a new cluster role
+
+To create a cluster role, run the following command:
+
+----
+$ oc create clusterrole -h ...
+----
+
+The following excerpt from the help of this command describes its usage:
+
+----
+Create a ClusterRole.
+
+Usage:
+  oc create clusterrole NAME --verb=verb --resource=resource.group [--resource-name=resourcename] [--dry-run] [flags]
+
+Examples:
+  # Create a ClusterRole named "pod-reader" that allows user to perform "get", "watch" and "list" on pods
+  oc create clusterrole pod-reader --verb=get,list,watch --resource=pods
+  
+  # Create a ClusterRole named "pod-reader" with ResourceName specified
+  oc create clusterrole pod-reader --verb=get --resource=pods --resource-name=readablepod --resource-name=anotherpod
+  
+  # Create a ClusterRole named "foo" with API Group specified
+  oc create clusterrole foo --verb=get,list,watch --resource=rs.extensions
+  
+  # Create a ClusterRole named "foo" with SubResource specified
+  oc create clusterrole foo --verb=get,list,watch --resource=pods,pods/status
+  
+  # Create a ClusterRole name "foo" with NonResourceURL specified
+  oc create clusterrole "foo" --verb=get --non-resource-url=/logs/*
+  
+  # Create a ClusterRole name "monitoring" with AggregationRule specified
+  oc create clusterrole monitoring --aggregation-rule="rbac.example.com/aggregate-to-monitoring=true"
+
+Options:
+      --aggregation-rule=: An aggregation label selector for combining ClusterRoles.
+      --allow-missing-template-keys=true: If true, ignore any errors in templates when a field or map key is missing in
+the template. Only applies to golang and jsonpath output formats.
+      --dry-run=false: If true, only print the object that would be sent, without sending it.
+      --non-resource-url=[]: A partial url that user should have access to.
+  -o, --output='': Output format. One of:
+json|yaml|wide|name|custom-columns=...|custom-columns-file=...|go-template=...|go-template-file=...|jsonpath=...|jsonpath-file=...
+See custom columns [http://kubernetes.io/docs/user-guide/kubectl-overview/#custom-columns], golang template
+[http://golang.org/pkg/text/template/#pkg-overview] and jsonpath template
+[http://kubernetes.io/docs/user-guide/jsonpath].
+      --resource=[]: Resource that the rule applies to
+      --resource-name=[]: Resource in the white list that the rule applies to, repeat this flag for multiple items
+      --save-config=false: If true, the configuration of current object will be saved in its annotation. Otherwise, the
+annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.
+      --template='': Template string or path to template file to use when -o=go-template, -o=go-template-file. The
+template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+      --validate=false: If true, use a schema to validate the input before sending it
+      --verb=[]: Verb that applies to the resources contained in the rule
+
+----
+
+[[creating-derivative-cluster-role]]
+== Creating a cluster role from another cluster role
+
+. Export a cluster role to modify:
++
+----
+oc get clusterrole admin -o yaml > newrole.yaml
+----
++
+You can export any cluster role, including a
+xref:../architecture/additional_concepts/authorization.adoc#roles[default cluster role],
+to start your new role.
+
+. Customize the role definition in the *_newrole.yaml_* file.
++
+----
+aggregationRule: <1>
+  clusterRoleSelectors:
+  - matchLabels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+apiVersion: authorization.openshift.io/v1
+kind: ClusterRole
+metadata: 
+  annotations: 
+    openshift.io/description: "A user that has rights." <2>
+    openshift.io/reconcile-protect: "false"
+  creationTimestamp: 2018-04-06T15:04:05Z
+  labels:
+	  kubernetes.io/bootstrapping: rbac-defaults
+  name: <new_cluster_role> <3>
+  resourceVersion: "2321"
+  selfLink: /apis/authorization.openshift.io/v1/clusterroles/<new_cluster_role> <3>
+  uid: bfbf991e-39ab-11e8-bb7b-080027a54c8e
+rules: <4>
+- apiGroups:
+  - ""
+  attributeRestrictions: null
+  resources:
+  - pods
+  - pods/attach
+  - pods/exec
+  - pods/portforward
+  - pods/proxy
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+...[OUTPUT OMITTED]...
+- apiGroups:
+  - settings.k8s.io
+  attributeRestrictions: null
+  resources:
+  - podpresets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+----
+<1> Remove the `aggregationRule` section.
+<2> Optional: Update the role description.
+<3> Provide the name for the new cluster role.
+<4> Customize the cluster role rules as required.
+
+. Create the role:
++
+----
+$ oc create -f newrole.yaml
+----
+
+////
+. Grant the permissions in the cluster role to a user:
+.. To grant a user permissions in all projects:
++
+----
+$ oc adm policy add-cluster-role-to-user <new_cluster_role> <username>
+----
+
+.. To grant a user permissions in a single project:
++
+----
+$ oc adm policy add-role-to-user <new_cluster_role> <username> -n <project>
+----
+////
+
 [[cluster-and-local-role-bindings]]
-== Cluster and Local Role Bindings
+== Cluster and local role bindings
 
 A cluster role binding is a binding that exists at the cluster level.
 A role binding exists at the project level. The cluster role _view_ must be
@@ -781,4 +931,54 @@ This can appear especially confusing via the web console UI, which does not list
 cluster role bindings (which are bound to true cluster administrators). However, it
 does list local role bindings (which could be used to locally bind `clusteradmin`).
 
+[[updating-policy-definitions]]
+== Updating Policy Definitions
+
+During a cluster upgrade, and on every restart of any master, the 
+xref:../architecture/additional_concepts/authorization.adoc#roles[default
+cluster roles] are automatically reconciled to restore any missing permissions.
+
+If you customized default cluster roles and want to ensure a role reconciliation
+does not modify them:
+
+. Protect each role from reconciliation:
++
+----
+$ oc annotate clusterrole.rbac <role_name> --overwrite rbac.authorization.kubernetes.io/autoupdate=false
+----
++
+[WARNING]
+====
+You must manually update the roles that contain this setting to include any new
+or required permissions after upgrading.
+====
+
+. Generate a default bootstrap policy template file:
++
+----
+$ oc adm create-bootstrap-policy-file --filename=policy.json
+----
++
+[NOTE]
+====
+The contents of the file vary based on the {product-title} version, but the file 
+contains only the default policies.
+====
+
+. Update the *_policy.json_* file to include any cluster role customizations.
+
+. Use the policy file to automatically reconcile roles and role bindings that 
+are not reconcile protected:
++
+----
+$ oc auth reconcile -f policy.json
+----
+
+. Reconcile security context constraints:
++
+----
+# oc adm policy reconcile-sccs \
+    --additive-only=true \
+    --confirm
+----
 endif::[]

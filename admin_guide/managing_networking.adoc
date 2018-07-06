@@ -25,8 +25,14 @@ Pods].
 == Managing Pod Networks
 
 When your cluster is configured to use
+ifdef::openshift-enterprise,openshift-origin[]
 xref:../architecture/networking/sdn.adoc#architecture-additional-concepts-sdn[the *ovs-multitenant* SDN
-plugin], you can manage the separate pod overlay networks for projects using
+plugin], 
+endif::openshift-enterprise,openshift-origin[]
+ifdef::openshift-online,openshift-dedicated[]
+the *ovs-multitenant* SDN plugin
+endif::openshift-online,openshift-dedicated[]
+you can manage the separate pod overlay networks for projects using
 the administrator CLI.
 ifdef::openshift-enterprise,openshift-origin[]
 See the xref:../install_config/configuring_sdn.adoc#install-config-configuring-sdn[Configuring the SDN] section
@@ -282,10 +288,11 @@ Or,
 - A pod cannot reach specified internal subnets/hosts that it should have no
 reason to contact.
 
-You can configure projects to have different egress policies. For example,
-allowing `<project A>` access to a specified IP range, but denying the same
-access to `<project B>`. Or restrict application developers from updating from
-(Python) pip mirrors, and forcing updates to only come from desired sources.
+Egress policies can be set at the pod selector-level and project-level. For
+example, you can allow `<project A>` access to a specified IP range but deny the
+same access to `<project B>`. Or, you can restrict application developers from
+updating from (Python) pip mirrors, and force updates to only come from approved
+sources.
 
 [CAUTION]
 ====
@@ -293,6 +300,10 @@ You must have the
 xref:../install_config/configuring_sdn.adoc#migrating-between-sdn-plugins[*ovs-multitenant*
 or *ovs-networkpolicy* plug-in enabled] in order to limit pod access via egress
 policy.
+
+If you are using the *ovs-networkpolicy* plug-in, egress policy is compatible
+with only one policy per project, and will not work with projects that share a
+network, such as global projects.
 ====
 
 Project administrators can neither create `EgressNetworkPolicy` objects, nor
@@ -366,14 +377,16 @@ because the `0.0.0.0/0` rule would be checked first, and it would match and deny
 all traffic.
 +
 Domain name updates are polled based on the TTL (time to live) value of the
-domain of the local non-authoritative server, or 30 minutes if the TTL is unable
-to be fetched. The pod should also resolve the domain from the same local
-non-authoritative server when necessary, otherwise the IP addresses for the
-domain perceived by the egress network policy controller and the pod will be
-different, and the egress network policy may not be enforced as expected. In the
-above example, suppose `www.foo.com` resolved to `10.11.12.13` and has a DNS TTL
-of one minute, but was later changed to `20.21.22.23`. {product-title} will then
-take up to one minute to adapt to these changes.
+domain returned by the local non-authoritative servers. The pod should also
+resolve the domain from the same local nameservers when necessary, otherwise
+the IP addresses for the domain perceived by the egress network policy controller
+and the pod will be different, and the egress network policy may not be enforced
+as expected. Since egress network policy controller and pod are asynchronously
+polling the same local nameserver, there could be a race condition where pod may
+get the updated IP before the egress controller. Due to this current limitation,
+domain name usage in `EgressNetworkPolicy` is only recommended for domains with
+infrequent IP address changes.
+
 +
 [NOTE]
 ====
@@ -381,8 +394,7 @@ The egress firewall always allows pods access to the external interface of the
 node the pod is on for DNS resolution. If your DNS resolution is not handled by
 something on the local node, then you will need to add egress firewall rules
 allowing access to the DNS server's IP addresses if you are using domain names
-in your pods. The xref:../install_config/install/quick_install.adoc#install-config-install-quick-install[default installer]
-sets up a local dnsmasq, so if you are using that setup you will not need to add extra rules.
+in your pods.
 ====
 
 
@@ -424,8 +436,9 @@ falling back to filtering MAC addresses in software.
 
 [IMPORTANT]
 ====
-Currently, the egress router is not compatible with Amazon AWS due to AWS not
-being compatible with macvlan traffic.
+Currently, the egress router is not compatible with Amazon AWS, Azure Cloud,
+or any other cloud platform that does not support layer 2 manipulations due to
+their incompatibility with macvlan traffic.
 ====
 
 [[admin-guide-limit-pod-access-important-deployment-considerations]]
@@ -1005,7 +1018,7 @@ the corresponding ports on the external server, using the reserved egress IP
 address.
 
 You can also specify the `EGRESS_DNS_PROXY_DESTINATION` using a
-xref:../dev_guide/configmaps.adocdev-guide-configmaps[ConfigMap], similarly to
+xref:../dev_guide/configmaps.adoc#dev-guide-configmaps[ConfigMap], similarly to
 xref:admin-guide-manage-pods-egress-router-configmap[the redirecting egress router example above].
 
 [[admin-guide-manage-pods-egress-router-failover]]
@@ -1180,9 +1193,12 @@ $ oc patch hostsubnet node1 -p \
 [IMPORTANT]
 ====
 Egress IPs are implemented as additional IP addresses on the primary network
-interface, and must be in the same subnet as the node's primary IP. Allowing
-additional IP addresses on the primary network interface might require extra
-configuration when using some cloud or VM solutions.
+interface, and must be in the same subnet as the node's primary IP.
+Additionally, any external IPs should not be configured in any Linux network
+configuration files, such as *_ifcfg-eth0_*.
+
+Allowing additional IP addresses on the primary network interface might require
+extra configuration when using some cloud or VM solutions.
 ====
 
 If the above is enabled for a project, all egress traffic from that project will

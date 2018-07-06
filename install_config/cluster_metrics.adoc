@@ -73,10 +73,10 @@ endif::[]
 
 An Ansible playbook is available to deploy and upgrade cluster metrics. You
 should familiarize yourself with the
-xref:../install_config/install/advanced_install.adoc#install-config-install-advanced-install[Advanced
-Installation] section. This provides information for preparing to use Ansible
-and includes information about configuration. Parameters are added to the
-Ansible inventory file to configure various areas of cluster metrics.
+xref:../install/index.adoc#install-planning[Installing Clusters] guide. This
+provides information for preparing to use Ansible and includes information about
+configuration. Parameters are added to the Ansible inventory file to configure
+various areas of cluster metrics.
 
 The following describe the various areas and the parameters that can be added to
 the Ansible inventory file in order to modify the defaults:
@@ -187,7 +187,7 @@ metrics data in this scenario is:
 ifdef::openshift-origin[]
 These two test cases are presented on the following graph:
 
-image::https://raw.githubusercontent.com/ekuric/openshift/master/metrics/1_10kpods.png[1000 pods vs 10000 pods monitored during 24 hours]
+image::https://raw.githubusercontent.com/ekuric/openshift/master/metrics/1_10kpods.png[1000 pods versus 10000 pods monitored during 24 hours]
 endif::openshift-origin[]
 
 If the default value of 7 days for `openshift_metrics_duration` and 30 seconds for
@@ -270,7 +270,7 @@ storage.
 
 The {product-title} Ansible `openshift_metrics` role configures and deploys all of the
 metrics components using the variables from the
-xref:../install_config/install/advanced_install.adoc#configuring-ansible[Configuring
+xref:../install/configuring_inventory_file.adoc#configuring-ansible[Configuring
 Ansible] inventory file.
 
 [[metrics-ansible-variables]]
@@ -439,6 +439,11 @@ pods are placed onto nodes with specific labels. For example,
 remove the HOSA from an installation. HOSA can be used to collect custom
 metrics from your pods. This component is currently in
 Technology Preview and is not installed by default.
+
+|`openshift_metrics_hawkular_hostname`
+|Set when executing the `openshift_metrics` Ansible role, since it uses the host
+name for the Hawkular Metrics xref:../architecture/networking/routes.adoc#architecture-core-concepts-routes[route].
+This value should correspond to a fully qualified domain name.
 |===
 
 [NOTE]
@@ -460,13 +465,6 @@ endif::[]
 
 See xref:../dev_guide/compute_resources.adoc#dev-compute-resources[Compute
 Resources] for further discussion on how to specify requests and limits.
-
-The only required variable is `openshift_metrics_hawkular_hostname`. This value is
-required when executing the `openshift_metrics` Ansible role because it uses the host name for the
-Hawkular Metrics xref:../architecture/networking/routes.adoc#architecture-core-concepts-routes[route]. This
-value should correspond to a fully qualified domain name. You must know
-the value of `openshift_metrics_hawkular_hostname` when
-xref:../install_config/cluster_metrics.adoc#configuring-openshift-metrics[configuring the console] for metrics access.
 
 If you are using
 xref:../install_config/cluster_metrics.adoc#metrics-persistent-storage[persistent
@@ -543,6 +541,11 @@ persistent storage using the default parameters.
 ====
 The host that you run the Ansible playbook on must have at least 75MiB of free
 memory per host in the inventory.
+====
+
+[IMPORTANT]
+====
+In accordance with upstream Kubernetes rules, metrics can be collected only on the default interface of `eth0`.
 ====
 
 .Deploying with Persistent Storage
@@ -716,43 +719,6 @@ endif::[]
 Information about scaling cluster metrics capabilities is available in the
 xref:../scaling_performance/scaling_cluster_metrics.adoc#cluster-metrics-scaling-openshift-metrics-pods[Scaling and
 Performance Guide].
-
-[[metrics-logging]]
-== Integration with Aggregated Logging
-
-Hawkular Alerts must be connected to the Aggregated Logging's Elasticsearch to
-react on log events. By default, Hawkular tries to find Elasticsearch on its
-default place (namespace `logging`, pod `logging-es`) at every boot. If
-Aggregated Logging is installed after Hawkular, the Hawkular Metrics pod might
-need to be restarted in order to recognize the new Elasticsearch server. The
-Hawkular boot log provides a clear indication if the integration could not be
-properly configured, with messages like:
-
-----
-Failed to import the logging certificate into the store. Continuing, but the
-logging integration might fail.
-----
-
-or
-
-----
-Could not get the logging secret! Status code: 000. The Hawkular Alerts
-integration with Logging might not work properly.
-----
-
-This feature is available from
-ifdef::openshift-origin[]
- version v1.7.
-endif::[]
-ifdef::openshift-enterprise[]
- version 3.7.0.
-endif::[]
-You can confirm if logging is available by checking the log for an entry like:
-
-----
-Retrieving the Logging's CA and adding to the trust store, if Logging is
-available.
-----
 
 [[metrics-cleanup]]
 == Cleanup
@@ -1111,7 +1077,7 @@ operation metrics] for more information.
 
 *Volume Stats Metrics*
 
-These metrics typically report usage stats of PVC (such as used space vs available space). The type of metrics emitted is gauge.
+These metrics typically report usage stats of PVC (such as used space versus available space). The type of metrics emitted is gauge.
 
 .Volume Stats Metrics
 |===

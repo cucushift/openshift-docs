@@ -64,9 +64,8 @@ more information.
 [[configuring-sdn-config-pod-network-ansible]]
 == Configuring the Pod Network with Ansible
 
-For initial
-xref:../install_config/install/advanced_install.adoc#install-config-install-advanced-install[advanced installations], the *ovs-subnet* plug-in is installed and configured by default,
-though it can be overridden during installation using the
+For initial cluster installations, the *ovs-subnet* plug-in is installed and
+configured by default, though it can be overridden during installation using the
 `os_sdn_network_plugin_name` parameter, which is configurable in the Ansible
 inventory file.
 
@@ -78,16 +77,8 @@ os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
 ----
 
 See
-xref:../install_config/install/advanced_install.adoc#advanced-install-networking-variables-table[Configuring Cluster Variables] for descriptions of networking-related Ansible variables
+xref:../install/configuring_inventory_file.adoc#advanced-install-networking-variables-table[Configuring Cluster Variables] for descriptions of networking-related Ansible variables
 that can be set in your inventory file.
-
-ifdef::openshift-enterprise[]
-For initial xref:../install_config/install/quick_install.adoc#install-config-install-quick-install[quick installations],
-the *ovs-subnet* plug-in is installed and configured by default as well, and can
-be
-xref:../install_config/master_node_configuration.adoc#master-configuration-files[reconfigured post-installation]
-using the `*networkConfig*` stanza of the *_master-config.yaml_* file.
-endif::[]
 
 [[configuring-the-pod-network-on-masters]]
 == Configuring the Pod Network on Masters
@@ -191,6 +182,13 @@ networkConfig:
 *redhat/openshift-ovs-networkpolicy* for the *ovs-networkpolicy* plug-in
 ====
 
+[NOTE]
+====
+You must change the MTU size on all masters and nodes that are part of the
+{product-title} SDN. Also, the MTU size of the tun0 interface must be the same
+across all nodes that are part of the cluster.
+====
+
 [[expanding-the-service-network]]
 == Expanding the service network
 
@@ -251,12 +249,19 @@ If you are already using one SDN plug-in and want to switch to another:
 xref:configuring-the-pod-network-on-masters[masters] and
 xref:configuring-the-pod-network-on-nodes[nodes] in their configuration files.
 ifdef::openshift-origin[]
-. Restart the *origin-master-api* and *origin-master-controller*  services on masters and the *origin-node* service
-on nodes.
+. Restart the *origin-master-api* and *origin-master-controller* services on all masters.
+. Stop the *origin-node* service on all masters and nodes.
 endif::[]
 ifdef::openshift-enterprise[]
-. Restart the *atomic-openshift-master-api* and *atomic-openshift-master-controllers*
-on masters and the *atomic-openshift-node* service on nodes.
+. Restart the *atomic-openshift-master-api* and *atomic-openshift-master-controllers* services on all masters.
+. Stop the *atomic-origin-node* service on all masters and nodes.
+endif::[]
+. If you are switching between OpenShift SDN plug-ins, restart the *openvswitch* service on all masters and nodes.
+ifdef::openshift-origin[]
+. Restart the *origin-node* service on all masters and nodes.
+endif::[]
+ifdef::openshift-enterprise[]
+. Restart the *atomic-openshift-node* service on all masters and nodes.
 endif::[]
 . If you are switching from an OpenShift SDN plug-in to a
 third-party plug-in, then clean up OpenShift SDN-specific
@@ -281,14 +286,16 @@ $ oc get netnamespace
 [[migrating-between-sdn-plugins-networkpolicy]]
 === Migrating from ovs-multitenant to ovs-networkpolicy
 
-Before migrating from the *ovs-multitenant* plug-in to the *ovs-networkpolicy*
-plug-in, ensure that every namespace has a unique `NetID`. This means that if you
-have previously
-xref:../admin_guide/managing_networking.adoc#joining-project-networks[joined projects
-together] or
-xref:../admin_guide/managing_networking.adoc#making-project-networks-global[made projects
-global], you will need to undo that before switching to the *ovs-networkpolicy* plug-in,
-or the NetworkPolicy objects may not function correctly.
+In addition to the generic plug-in migration steps above in the xref:migrating-between-sdn-plugins[Migrating between SDN plug-ins section], there is one additional
+step when migrating from the *ovs-multitenant* plug-in to the
+*ovs-networkpolicy* plug-in; you must ensure that every namespace has a unique
+`NetID`. This means that if you have previously
+xref:../admin_guide/managing_networking.adoc#joining-project-networks[joined
+projects together] or
+xref:../admin_guide/managing_networking.adoc#making-project-networks-global[made
+projects global], you will need to undo that before switching to the
+*ovs-networkpolicy* plug-in, or the NetworkPolicy objects may not function
+correctly.
 
 A helper script is available that fixes `NetID's`, creates NetworkPolicy objects
 to isolate previously-isolated namespaces, and enables connections between
@@ -297,7 +304,7 @@ previously-joined namespaces.
 Use the following steps to migrate to the *ovs-networkpolicy*
 plug-in, by using this helper script, while still running the *ovs-multitenant* plug-in:
 
-. Download the script from link:https://raw.githubusercontent.com/openshift/origin/master/contrib/migration/migrate-network-policy.sh[] and add the exexcution file permission:
+. Download the script and add the execution file permission:
 +
 [source, bash]
 ----
