@@ -7,7 +7,7 @@
 :experimental:
 :toc: macro
 :toc-title:
-:openshift-origin[]
+:openshift-origin[]:
 toc::[]
 
 == Overview
